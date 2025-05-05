@@ -54,7 +54,7 @@ jobs:
 
       - name: Wait for services to be ready
         run: |
-          sleep 30  # Attendre un peu pour que les services se lancent
+          sleep 33  # Attendre un peu pour que les services se lancent
 
       - name: Run SonarQube Analysises
         env:
