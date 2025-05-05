@@ -52,8 +52,10 @@ jobs:
           docker-compose -f docker-compose.yaml up --build -d
 
       - name: Wait for services to be ready
-        run: |
-          sleep 33
+        run: sleep 30
+
+      - name: Debug - List running containers
+        run: docker ps -a
 
       - name: Run SonarQube Analysis
         env:
@@ -69,4 +71,5 @@ jobs:
         run: |
           cd Exercice-DDD/scouting-service
           docker-compose -f docker-compose.yaml down
+
 
