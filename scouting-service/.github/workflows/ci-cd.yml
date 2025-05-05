@@ -39,13 +39,12 @@ jobs:
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version  # Vérification de la version installée
+          docker-compose --version
 
       - name: Clone Exercice-DDD repository
         run: |
           git clone https://github.com/AyaELMAFHOUM/Exercice-DDD.git
           ls -al Exercice-DDD
-          ls -R Exercice-DDD
 
       - name: Build and start services with Docker Compose
         run: |
@@ -54,19 +53,20 @@ jobs:
 
       - name: Wait for services to be ready
         run: |
-          sleep 33  # Attendre un peu pour que les services se lancent
+          sleep 33
 
-      - name: Run SonarQube Analysises
+      - name: Run SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd Exercice-DDD/scouting-service
-          docker exec -t $(docker ps -q -f ancestor=scouting-service) mvn sonar:sonar \
+          docker exec -t scouting-service mvn sonar:sonar \
             -Dsonar.projectKey=scouting-service \
-            -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app  \
+            -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
             -Dsonar.login=$SONAR_TOKEN
 
       - name: Shutdown Docker Compose services
         run: |
           cd Exercice-DDD/scouting-service
           docker-compose -f docker-compose.yaml down
+
