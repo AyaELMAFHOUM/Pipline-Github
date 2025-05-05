@@ -72,4 +72,3 @@ jobs:
           cd Exercice-DDD/scouting-service
           docker-compose -f docker-compose.yaml down
 
-
