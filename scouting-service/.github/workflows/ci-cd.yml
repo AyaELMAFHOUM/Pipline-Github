@@ -32,8 +32,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Install Docker Compose
         run: |
@@ -57,12 +60,12 @@ jobs:
       - name: Debug - List running containers
         run: docker ps -a
 
-      - name: Run SonarQube Analysis
+      - name: Run SonarQube Analysis with Maven (local)
+        working-directory: Exercice-DDD/scouting-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd Exercice-DDD/scouting-service
-          docker exec -t scouting-service mvn sonar:sonar \
+          mvn verify sonar:sonar \
             -Dsonar.projectKey=scouting-service \
             -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
             -Dsonar.login=$SONAR_TOKEN
@@ -71,3 +74,4 @@ jobs:
         run: |
           cd Exercice-DDD/scouting-service
           docker-compose -f docker-compose.yaml down
+
