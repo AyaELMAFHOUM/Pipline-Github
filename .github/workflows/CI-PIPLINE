@@ -1,4 +1,4 @@
-name: Java CI with Docker Build and SonarQube
+name: Java CI with Docker Build SonarQube and trivy 
 
 on:
   push:
