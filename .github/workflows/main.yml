@@ -32,7 +32,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug - Lister les fichiers pour valider le chemin
+      - name: Debug - Lister les fichiers
         run: ls -R
 
       - name: Set up Docker Buildx
@@ -45,11 +45,11 @@ jobs:
           docker-compose --version
 
       - name: Build Docker image
-        working-directory: Exercice-DDD/scouting-service
+        working-directory: ./scouting-service  # Chemin relatif
         run: docker build -t scouting-service .
 
-      - name: Run Maven tests in Docker
-        working-directory: Exercice-DDD/scouting-service
+      - name: Run Maven tests
+        working-directory: ./scouting-service
         run: |
           docker run --rm \
             --network host \
@@ -62,22 +62,15 @@ jobs:
             mvn clean verify
 
       - name: Run SonarQube Analysis
-        working-directory: Exercice-DDD/scouting-service
+        working-directory: ./scouting-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://c1b0-197-230-25-154.ngrok-free.app
         run: |
-          docker run --rm \
-            --network host \
-            -e SONAR_TOKEN=${{ secrets.SONAR_TOKEN }} \
-            -v "$(pwd)":/usr/src/app \
-            -w /usr/src/app \
-            maven:3.8.8-eclipse-temurin-21 \
-            mvn sonar:sonar \
-              -Dsonar.projectKey=scouting-service \
-              -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
-              -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          mvn sonar:sonar \
+            -Dsonar.projectKey=scouting-service \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN
 
-      - name: Shutdown Docker Compose services (if any)
-        working-directory: Exercice-DDD/scouting-service
+      - name: Shutdown services
         run: docker-compose down || true
-
