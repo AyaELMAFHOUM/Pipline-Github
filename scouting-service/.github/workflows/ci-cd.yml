@@ -35,6 +35,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      - name: Clone Exercice-DDD repository
+        run: |
+          git clone https://github.com/AyaELMAFHOUM/Exercice-DDD.git
+          ls -al Exercice-DDD
+
       - name: Build Docker image
         run: |
           cd Exercice-DDD/scouting-service
@@ -43,20 +54,31 @@ jobs:
       - name: Run Maven tests in Docker container
         run: |
           cd Exercice-DDD/scouting-service
-          docker run --rm -e POSTGRES_DB=scoutingdb -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=tmpPass -v $(pwd):/usr/src/app -w /usr/src/app maven:3.8-openjdk-17 mvn clean verify
+          docker run --rm \
+            -e POSTGRES_DB=scoutingdb \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_PASSWORD=tmpPass \
+            -v $(pwd):/usr/src/app \
+            -w /usr/src/app \
+            maven:3.8-openjdk-17 mvn clean verify
 
       - name: Run SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd Exercice-DDD/scouting-service
-          docker run --rm -e SONAR_TOKEN=$SONAR_TOKEN -v $(pwd):/usr/src/app -w /usr/src/app maven:3.8-openjdk-17 mvn sonar:sonar \
-            -Dsonar.projectKey=scouting-service \
-            -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
-            -Dsonar.login=$SONAR_TOKEN
+          docker run --rm \
+            -e SONAR_TOKEN=$SONAR_TOKEN \
+            -v $(pwd):/usr/src/app \
+            -w /usr/src/app \
+            maven:3.8-openjdk-17 mvn sonar:sonar \
+              -Dsonar.projectKey=scouting-service \
+              -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
+              -Dsonar.login=$SONAR_TOKEN
 
       - name: Shutdown Docker Compose services
         run: |
           cd Exercice-DDD/scouting-service
-          docker-compose -f docker-compose.yaml down
+          docker-compose -f docker-compose.yaml down || true
+
 
