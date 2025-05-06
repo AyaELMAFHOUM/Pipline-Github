@@ -38,10 +38,8 @@ jobs:
           pwd
           echo "Contenu du dossier courant :"
           ls -la
-          echo "Contenu de Exercice-DDD :"
-          ls -la Exercice-DDD || echo "❌ Le dossier Exercice-DDD est introuvable"
-          echo "Contenu de Exercice-DDD/scouting-service :"
-          ls -la Exercice-DDD/scouting-service || echo "❌ Le dossier scouting-service est introuvable"
+          echo "Contenu de scouting-service :"
+          ls -la scouting-service || echo "❌ Le dossier scouting-service est introuvable"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -84,3 +82,4 @@ jobs:
               -Dsonar.projectKey=scouting-service \
               -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
               -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
