@@ -73,7 +73,7 @@ jobs:
 
       # 🐳 Build Docker image
       - name: Build Docker image
-        run: docker build -t scouting-app:latest .
+        run: docker build -t scouting-app:latest -f scouting-service/dockerfile scouting-service
 
       # 🔍 Trivy scan - image Docker
       - name: Trivy scan - Docker image
