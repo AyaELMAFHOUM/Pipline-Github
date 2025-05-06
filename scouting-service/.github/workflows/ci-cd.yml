@@ -51,34 +51,36 @@ jobs:
           cd Exercice-DDD/scouting-service
           docker build -t scouting-service .
 
-      - name: Run Maven tests in Docker container
+      - name: Start Maven container in background
         run: |
           cd Exercice-DDD/scouting-service
-          docker run --rm \
+          docker run -dit \
+            --name mvn \
             -e POSTGRES_DB=scoutingdb \
             -e POSTGRES_USER=postgres \
             -e POSTGRES_PASSWORD=tmpPass \
             -v $(pwd):/usr/src/app \
             -w /usr/src/app \
-            maven:3.8-openjdk-17 mvn clean verify
+            maven:3.8-openjdk-17 tail -f /dev/null
+
+      - name: Run Maven tests in container
+        run: |
+          docker exec mvn mvn clean verify
 
       - name: Run SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd Exercice-DDD/scouting-service
-          docker run --rm \
-            -e SONAR_TOKEN=$SONAR_TOKEN \
-            -v $(pwd):/usr/src/app \
-            -w /usr/src/app \
-            maven:3.8-openjdk-17 mvn sonar:sonar \
-              -Dsonar.projectKey=scouting-service \
-              -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
-              -Dsonar.login=$SONAR_TOKEN
+          docker exec mvn mvn sonar:sonar \
+            -Dsonar.projectKey=scouting-service \
+            -Dsonar.host.url=https://c1b0-197-230-25-154.ngrok-free.app \
+            -Dsonar.login=$SONAR_TOKEN
+
+      - name: Stop Maven container
+        run: docker rm -f mvn || true
 
       - name: Shutdown Docker Compose services
         run: |
           cd Exercice-DDD/scouting-service
           docker-compose -f docker-compose.yaml down || true
-
 
