@@ -51,11 +51,11 @@ jobs:
           docker-compose --version
 
       - name: Build Docker image
-        working-directory: Exercice-DDD/scouting-service
+        working-directory: scouting-service
         run: docker build -t scouting-service .
 
       - name: Run Maven tests in Docker
-        working-directory: Exercice-DDD/scouting-service
+        working-directory: scouting-service
         run: |
           docker run --rm \
             --network host \
@@ -68,7 +68,7 @@ jobs:
             mvn clean verify
 
       - name: Run SonarQube Analysis
-        working-directory: Exercice-DDD/scouting-service
+        working-directory: scouting-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
