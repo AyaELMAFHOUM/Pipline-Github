@@ -58,7 +58,7 @@ jobs:
             maven:3.8.8-eclipse-temurin-21 \
             mvn sonar:sonar \
               -Dsonar.projectKey=scouting-service \
-              -Dsonar.host.url=https://2591-105-67-131-237.ngrok-free.app \
+              -Dsonar.host.url=https://f053-105-67-131-237.ngrok-free.app \
               -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
       # ✅ Scan codebase avec Trivy
