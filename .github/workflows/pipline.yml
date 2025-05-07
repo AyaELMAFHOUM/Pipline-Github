@@ -1,5 +1,4 @@
-name: CI/CD Pipeline - Java, SonarQube, DockerHub
-
+name: Pipline CI/CD 
 on:
   push:
     branches: [ main ]
@@ -7,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build_and_test:
+  build_test_scan_deploy:
     runs-on: ubuntu-latest
 
     services:
@@ -45,22 +44,6 @@ jobs:
             maven:3.8.8-eclipse-temurin-21 \
             mvn clean verify
 
-      - name: SonarQube Scan
-        working-directory: scouting-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          docker run --rm \
-            -e SONAR_HOST_URL="https://f9ba-105-66-132-136.ngrok-free.app" \
-            -v "$PWD":/usr/src \
-            sonarsource/sonar-scanner-cli \
-            sonar-scanner \
-              -Dsonar.projectKey=scouting-service \
-              -Dsonar.sources=. \
-              -Dsonar.java.binaries=target \
-              -Dsonar.host.url=https://f9ba-105-66-132-136.ngrok-free.app \
-              -Dsonar.login=$SONAR_TOKEN
-
       - name: Trivy scan - codebase
         uses: aquasecurity/trivy-action@master
         with:
@@ -96,3 +79,19 @@ jobs:
           docker tag $IMAGE_NAME:latest $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
           docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$DATE_TAG
           docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
+
+      - name: SonarQube Analysis
+        working-directory: scouting-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          docker run --rm \
+            --network host \
+            -e SONAR_TOKEN=${{ secrets.SONAR_TOKEN }} \
+            -v "$PWD":/app \
+            -w /app \
+            maven:3.8.8-eclipse-temurin-21 \
+            mvn sonar:sonar \
+              -Dsonar.projectKey=scouting-service \
+              -Dsonar.host.url=https://f053-105-67-131-237.ngrok-free.app \
+              -Dsonar.login=${{ secrets.SONAR_TOKEN }}
